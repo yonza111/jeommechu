@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}jeommechu{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>jeommechu</h1>
+        <nav>
+            <ul>
+                <li><a href="/">jeommechu Home</a></li>
+                <li><a href="/maps/restaurants_nearby/">Restaurants</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- 각 페이지에서 채울 내용이 들어가는 부분 -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; jeommechu</p>
+    </footer>
+</body>
+</html>
