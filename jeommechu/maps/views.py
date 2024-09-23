@@ -4,10 +4,12 @@ from rest_framework.permissions import AllowAny
 import urllib.request
 import json
 from .serializers import RestaurantSerializer, CafeSerializer
+from dotenv import load_dotenv
+import os
 
 def search_nearby_places(lat, lon, query, radius):
-    client_id = "YOUR_NAVER_CLIENT_ID"
-    client_secret = "YOUR_NAVER_CLIENT_SECRET"
+    client_id = os.environ.get('NAVER_CLIENT_ID')
+    client_secret = os.environ.get('NAVER_CLIENT_SECRET')
     display = 20  # 한 번에 표시할 검색 결과 수
 
     url = f"https://openapi.naver.com/v1/search/local.json?query={query}&display={display}&sort=random&radius={radius}&start=1&coordinate={lon},{lat}"
