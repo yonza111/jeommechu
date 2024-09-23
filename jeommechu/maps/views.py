@@ -2,17 +2,22 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import urllib.request
+import urllib.parse
 import json
 from .serializers import RestaurantSerializer, CafeSerializer
 from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 def search_nearby_places(lat, lon, query, radius):
     client_id = os.environ.get('NAVER_CLIENT_ID')
     client_secret = os.environ.get('NAVER_CLIENT_SECRET')
     display = 20  # 한 번에 표시할 검색 결과 수
 
-    url = f"https://openapi.naver.com/v1/search/local.json?query={query}&display={display}&sort=random&radius={radius}&start=1&coordinate={lon},{lat}"
+    # query 문자열을 URL 인코딩
+    encoded_query = urllib.parse.quote(query)
+    url = f"https://openapi.naver.com/v1/search/local.json?query={encoded_query}&display={display}&sort=random&radius={radius}&start=1&coordinate={lon},{lat}"
 
     request = urllib.request.Request(url)
     request.add_header("X-Naver-Client-Id", client_id)
@@ -44,7 +49,7 @@ class RestaurantListView(APIView):
                 'title': item['title'],
                 'address': item['address'],
                 'category': item.get('category', '음식점'),
-                'distance': item['distance'],
+                # 'distance': item.get('distance', 0),  # 'distance' 키가 없으면 'N/A'를 기본값으로 설정 # distance 빼자?
                 'link': item['link'],
                 'menu': "Sample Menu",  # 메뉴 데이터는 API 확장을 통해 추가 가능
                 'opening_hours': "9:00 AM - 10:00 PM",  # 영업시간 역시 API 확장을 통해 추가
@@ -53,6 +58,11 @@ class RestaurantListView(APIView):
 
         serializer = RestaurantSerializer(categorized_restaurants, many=True)
         return Response(serializer.data)
+    
+from django.shortcuts import render
+
+def restaurant_template_view_function(request):
+    return render(request, 'restaurant_nearby.html')
 
 class CafeListView(APIView):
     permission_classes = [AllowAny]
@@ -76,3 +86,5 @@ class CafeListView(APIView):
 
         serializer = CafeSerializer(cafe_list, many=True)
         return Response(serializer.data)
+
+
