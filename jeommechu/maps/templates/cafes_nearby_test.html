@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    근처 카페
+{% endblock %}
+
+{% block content %}
+    <h2>Nearby Cafes</h2>
+    <ul id="cafe-list">
+        <!-- 카페 리스트가 여기에 동적으로 추가됩니다 -->
+    </ul>
+
+    <script>
+        // URL에서 파라미터로 받은 좌표값을 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const latitude = urlParams.get('latitude');
+        const longitude = urlParams.get('longitude');
+
+        // API에 요청 보내기
+        function fetchCafes() {
+            fetch(`/maps/api/cafes_nearby/?latitude=${latitude}&longitude=${longitude}`, {
+                method: 'GET',
+            })
+            .then(response => response.json())
+            .then(data => {
+                const cafeList = document.getElementById('cafe-list');
+                cafeList.innerHTML = '';  // 리스트 초기화
+
+                // 받은 데이터를 리스트로 출력
+                data.forEach(cafe => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `${cafe.title} - ${cafe.address}`;
+                    cafeList.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching cafes:', error);
+            });
+        }
+
+        // 페이지 로드 시 카페 데이터 가져오기
+        document.addEventListener('DOMContentLoaded', fetchCafes);
+    </script>
+{% endblock %}

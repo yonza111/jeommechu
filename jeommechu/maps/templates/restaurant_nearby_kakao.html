@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    근처 식당
+{% endblock %}
+
+{% block content %}
+    <h2>Restaurants Near You</h2>
+
+    <!-- 사용자에게 위치 설정 옵션 제공 -->
+    <p>
+        사용자 위치를 설정해주세요
+    </p>
+
+    <ul id="restaurant-list">
+        <!-- 레스토랑 리스트가 여기에 동적으로 추가됩니다 -->
+    </ul>
+    
+    <script>
+        function fetchRestaurants() {
+            console.log('Fetching restaurants...');  // 디버깅
+            fetch('/maps/api/restaurants_nearby/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: 37.5665,  // 예시 좌표 (서울)
+                    longitude: 126.9780  // 예시 좌표 (서울)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const restaurantList = document.getElementById('restaurant-list');
+                restaurantList.innerHTML = '';  // 리스트 초기화
+    
+                // 받은 데이터를 리스트로 출력
+                data.forEach(restaurant => {
+                    const kakaoMapLink = restaurant.place_url;  // 카카오 장소 URL
+    
+                    const listItem = document.createElement('li');
+    
+                    // 음식점 정보 출력 및 카카오 지도 링크 추가
+                    listItem.innerHTML = `
+                        <a href="${kakaoMapLink}" target="_blank">${restaurant.place_name}</a> - ${restaurant.road_address_name}
+                        <br>
+                        <a href="javascript:void(0)" onclick="findNearbyCafes('${restaurant.road_address_name}')">
+                            근처 카페 찾기
+                        </a>
+                    `;
+                    restaurantList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching restaurants:', error));
+        }
+    
+        function findNearbyCafes(roadAddress) {
+            // 페이지를 새로고침하며 road_address를 쿼리 파라미터로 전달하여 카페 리스트 페이지로 이동
+            window.location.href = `/maps/cafes_nearby/?road_address=${encodeURIComponent(roadAddress)}`;
+        }
+    
+        // 페이지 로드 시 음식점 데이터 가져오기
+        document.addEventListener('DOMContentLoaded', fetchRestaurants);
+    </script>
+{% endblock %}

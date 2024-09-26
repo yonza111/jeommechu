@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    근처 카페
+{% endblock %}
+
+{% block content %}
+    <script>
+        console.log('JavaScript is loaded');
+    </script>
+    <h2>Cafes Near the Selected Restaurant</h2>
+    <p id="selected-restaurant">이 텍스트가 보이나요?</p>
+    <!-- 사용자에게 선택된 레스토랑 정보 제공 -->
+    <p id="selected-restaurant">
+        선택한 레스토랑의 근처 카페를 확인해보세요.
+    </p>
+
+    <ul id="cafe-list">
+        <!-- 카페 리스트가 여기에 동적으로 추가됩니다 -->
+    </ul>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded and parsed');  // DOM이 모두 로드된 시점 확인
+            
+            const roadAddress = getRoadAddressFromQueryParams();
+            console.log('Road Address:', roadAddress);  // 도로명 주소를 콘솔에 출력
+    
+            if (roadAddress) {
+                console.log('Fetching cafes for road address:', roadAddress);
+                fetchCafes(roadAddress);
+            } else {
+                console.error('No road_address provided');
+            }
+        });
+    
+        function fetchCafes(roadAddress) {
+            console.log('Attempting to fetch cafes for:', roadAddress);  // 디버깅용 로그
+    
+            fetch(`/maps/api/cafes_nearby/?road_address=${encodeURIComponent(roadAddress)}`, {
+                method: 'GET',
+            })
+            .then(response => {
+                console.log('Response received, status:', response.status);  // 응답 상태 확인
+    
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Cafes Data:', data);  // 응답 데이터를 콘솔에 출력
+    
+                const cafeList = document.getElementById('cafe-list');
+                cafeList.innerHTML = '';  // 리스트 초기화
+    
+                if (data.length === 0) {
+                    console.log('No cafes found');
+                    cafeList.innerHTML = '<li>No cafes found</li>';
+                }
+    
+                // 받은 데이터를 리스트로 출력
+                data.forEach(cafe => {
+                    const listItem = document.createElement('li');
+    
+                    // 카페 정보 출력
+                    listItem.innerHTML = `
+                        <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a>
+                    `;
+                    cafeList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching cafes:', error));
+        }
+    
+        function getRoadAddressFromQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('road_address');
+        }
+    </script>
+{% endblock %}

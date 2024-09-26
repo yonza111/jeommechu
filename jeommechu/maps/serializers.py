@@ -1,16 +1,18 @@
 from rest_framework import serializers
 
 class RestaurantSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    address = serializers.CharField()
-    category = serializers.CharField()
-    # distance = serializers.IntegerField() 어차피 반경 1km라고 정하므로 distance 빼기로 함. 지도에서 확인도 되고
-    link = serializers.URLField()
-    menu = serializers.CharField()
-    opening_hours = serializers.CharField()
+    place_name = serializers.CharField()  # 장소 이름
+    road_address_name = serializers.CharField()  # 도로명 주소
+    address_name = serializers.CharField()  # 지번 주소
+    category_name = serializers.CharField()  # 카테고리
+    place_url = serializers.URLField()  # 카카오 장소 URL
+    menu = serializers.CharField(default="Sample Menu")  # 메뉴 데이터는 API 확장을 통해 추가 가능
+    opening_hours = serializers.CharField(default="9:00 AM - 10:00 PM")  # 영업시간도 필요 시 API 확장
 
 class CafeSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    address = serializers.CharField()
-    # distance = serializers.IntegerField() 어차피 반경 1km라고 정하므로 distance 빼기로 함. 지도에서 확인도 되고
-    link = serializers.URLField()
+    place_name = serializers.CharField()  # 장소 이름
+    road_address_name = serializers.CharField()  # 도로명 주소
+    address_name = serializers.CharField()  # 지번 주소
+    place_url = serializers.URLField()  # 카카오 장소 URL
+    menu = serializers.CharField(default="Sample Menu")  # 메뉴 데이터는 API 확장을 통해 추가 가능
+    opening_hours = serializers.CharField(default="9:00 AM - 10:00 PM")  # 영업시간도 필요 시 API 확장
