@@ -23,6 +23,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',  // CSRF 토큰 추가
                 },
                 body: JSON.stringify({
                     latitude: 37.5665,  // 예시 좌표 (서울)

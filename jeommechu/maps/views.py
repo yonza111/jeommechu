@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 import urllib.parse
-import os
 import urllib.request
 from django.shortcuts import render
 from .serializers import RestaurantSerializer, CafeSerializer
 import json
+import os
 from dotenv import load_dotenv
 import re
 

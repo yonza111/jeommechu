@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% load static %}
+
+{% block title %}로그인{% endblock %}
+
+{% block content %}
+<!-- 소셜 로그인 섹션 -->
+<h3>로그인</h3>
+<div>
+    {% providers_media_js %}
+    <a href="{% provider_login_url "kakao" %}" class="btn-kakao">
+        <img src="{% static 'images/kakao_login_medium_wide.png' %}" alt="Kakao Login"/>
+    </a>
+</div>
+
+{% endblock %}
