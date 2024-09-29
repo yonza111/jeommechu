@@ -5,25 +5,88 @@
 {% endblock %}
 
 {% block content %}
-    <script>
-        console.log('JavaScript is loaded');
-    </script>
-    <h2>Cafes Near the Selected Restaurant</h2>
-    <p id="selected-restaurant">이 텍스트가 보이나요?</p>
     <!-- 사용자에게 선택된 레스토랑 정보 제공 -->
-    <p id="selected-restaurant">
-        선택한 레스토랑의 근처 카페를 확인해보세요.
-    </p>
+    <h2 id="selected-restaurant">
+        <!-- 레스토랑 이름과 링크가 여기에 표시됩니다 -->
+    </h2>
 
+    <!-- 카페 리스트 -->
     <ul id="cafe-list">
         <!-- 카페 리스트가 여기에 동적으로 추가됩니다 -->
     </ul>
     
+    <!-- 스타일 추가 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;  /* 줄 간격 설정 */
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        #cafe-list {
+            padding: 0;
+            list-style-type: none;  /* 기본 리스트 스타일 제거 */
+        }
+
+        #cafe-list li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;  /* 둥근 테두리 */
+            transition: background-color 0.3s ease;
+        }
+
+        #cafe-list li:hover {
+            background-color: #f1f1f1;  /* 호버 효과 */
+        }
+
+        #cafe-list a {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        #cafe-list p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        #cafe-list button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        #cafe-list button:hover {
+            background-color: #45a049;  /* 버튼 호버 효과 */
+        }
+    </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const restaurant = getRestaurantInfoFromQueryParams();
             console.log('Restaurant Info:', restaurant);  // 디버깅용 로그
-        
+
+            // 레스토랑 이름을 h2 태그와 링크로 사용자에게 표시
+            const restaurantElement = document.getElementById('selected-restaurant');
+            if (restaurant.restaurantName && restaurant.restaurantUrl) {
+                restaurantElement.innerHTML = `<a href="${restaurant.restaurantUrl}" target="_blank">${restaurant.restaurantName}</a> 근처의 카페 목록`;
+            } else {
+                restaurantElement.textContent = '레스토랑 정보가 없습니다.';
+            }
+
             if (restaurant.roadAddress) {
                 console.log('Fetching cafes for road address:', restaurant.roadAddress);
                 fetchCafes(restaurant);
@@ -31,17 +94,16 @@
                 console.error('No road_address provided');
             }
         });
-        
     
         function fetchCafes(restaurant) {
             console.log('Attempting to fetch cafes for:', restaurant.roadAddress);  // 디버깅용 로그
-        
+
             fetch(`/maps/api/cafes_nearby/?road_address=${encodeURIComponent(restaurant.roadAddress)}`, {
                 method: 'GET',
             })
             .then(response => {
                 console.log('Response received, status:', response.status);  // 응답 상태 확인
-        
+
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
@@ -49,19 +111,19 @@
             })
             .then(data => {
                 console.log('Cafes Data:', data);  // 응답 데이터를 콘솔에 출력
-        
+
                 const cafeList = document.getElementById('cafe-list');
                 cafeList.innerHTML = '';  // 리스트 초기화
-        
+
                 if (data.length === 0) {
                     console.log('No cafes found');
                     cafeList.innerHTML = '<li>No cafes found</li>';
                 }
-        
+
                 // 받은 데이터를 리스트로 출력
                 data.forEach(cafe => {
                     const listItem = document.createElement('li');
-        
+
                     // 카페 정보 출력 및 선택하기 버튼 추가
                     listItem.innerHTML = `
                         <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a>
@@ -80,10 +142,10 @@
             .catch(error => console.error('Error fetching cafes:', error));
         }
 
-       // 음식점과 카페의 정보(이름, 주소, URL)를 저장하는 함수
+        // 음식점과 카페의 정보(이름, 주소, URL)를 저장하는 함수
         function saveSelection(restaurantPlaceName, restaurantPlaceUrl, restaurantAddress, cafePlaceName, cafePlaceUrl, cafeAddress) {
             console.log('Saving selection for restaurant and cafe:', restaurantPlaceName, cafePlaceName);
-            
+
             fetch('/maps/api/save_selection/', {
                 method: 'POST',
                 headers: {
@@ -109,6 +171,7 @@
             })
             .catch(error => console.error('Error saving selection:', error));
         }
+
         function getRestaurantInfoFromQueryParams() {
             const urlParams = new URLSearchParams(window.location.search);
             return {

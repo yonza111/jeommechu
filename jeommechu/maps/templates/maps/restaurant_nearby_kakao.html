@@ -5,10 +5,13 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Restaurants Near You</h2>
+    <h2>지정 위치 근처의 음식점</h2>
+
+    <!-- 지도 컨테이너를 고정 위치에 추가 -->
+    <div id="map" style="width: 100%; height: 400px;"></div>
 
     <!-- 사용자에게 위치 설정 옵션 제공 -->
-    <p>사용자 위치를 설정해주세요</p>
+    <p id="location-message">사용자 위치를 설정해주세요</p>
 
     <!-- 음식점 리스트 -->
     <ul id="restaurant-list">
@@ -18,13 +21,69 @@
     <!-- Kakao Map SDK 로드 -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8c428e637dc64270cd0d6023fdc9ace&libraries=services"></script>
 
+    <!-- 스타일 추가 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;  /* 줄 간격 설정 */
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        #restaurant-list {
+            padding: 0;
+            list-style-type: none;  /* 기본 리스트 스타일 제거 */
+        }
+
+        #restaurant-list li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;  /* 둥근 테두리 */
+            transition: background-color 0.3s ease;
+        }
+
+        #restaurant-list li:hover {
+            background-color: #f1f1f1;  /* 호버 효과 */
+        }
+
+        #restaurant-list a {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-decoration: none;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        #restaurant-list p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        #restaurant-list button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        #restaurant-list button:hover {
+            background-color: #45a049;  /* 버튼 호버 효과 */
+        }
+    </style>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // 지도 설정 및 클릭 이벤트 추가
-            var mapContainer = document.createElement('div'); // 지도 컨테이너 동적 생성
-            mapContainer.style.width = '100%';  // 크기 설정
-            mapContainer.style.height = '400px'; // 높이 설정
-            document.body.appendChild(mapContainer);  // body에 지도 컨테이너 추가
+            var mapContainer = document.getElementById('map'); // 미리 정의된 지도 컨테이너 선택
 
             var mapOption = { 
                 center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
@@ -61,6 +120,12 @@
                 .then(data => {
                     console.log('검색된 음식점:', data);
                     displayRestaurants(data);
+
+                    // 위치 설정 메시지를 숨기거나 제거
+                    var locationMessage = document.getElementById('location-message');
+                    if (locationMessage) {
+                        locationMessage.style.display = 'none'; // 메시지 숨기기
+                    }
                 })
                 .catch(error => console.error('음식점 검색 중 에러:', error));
             });

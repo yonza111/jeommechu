@@ -5,37 +5,90 @@
 {% endblock %}
 
 {% block content %}
-    
+
 <!-- reviews/main.html -->
 
-<li><a href="{% url 'reviews_nearby' %}">남들 리뷰 보기</a></li>
+<style>
+    /* 리뷰 리스트 스타일 */
+    .review-list {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;  /* 줄 간격 설정 */
+    }
 
-<h2>내가 선택한 음식점-카페 목록</h2>
-<ul>
-    {% for item in selections %}
-    <li>
-        <strong>음식점: {{ item.selection.restaurant.place_name }}</strong><br>
-        <strong>카페: {{ item.selection.cafe.place_name }}</strong><br>
-        선택 날짜: {{ item.selection.created_at }}
-        <br>        
+    .review-list h2 {
+        margin-bottom: 20px;
+    }
 
-        <!-- 리뷰 여부 -->
-        {% if item.review_exists %}
-            <a href="{% url 'review_detail' item.selection.restaurant.id item.selection.cafe.id %}">내 리뷰 보기</a>
-        {% else %}
-            <a href="{% url 'create_all_reviews' item.selection.restaurant.id item.selection.cafe.id %}">리뷰 작성하기</a>
-        {% endif %}
-        
+    .review-list ul {
+        padding: 0;
+        list-style-type: none;  /* 기본 리스트 스타일 제거 */
+    }
 
-        {% comment %} <a href="{% url 'create_all_reviews' item.selection.restaurant.id item.selection.cafe.id %}">리뷰 작성하기</a> {% endcomment %}
+    .review-list ul li {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;  /* 둥근 테두리 */
+        transition: background-color 0.3s ease;
+    }
 
-    </li>
-    <hr>
-    {% empty %}
-    <li>선택한 음식점과 카페가 없습니다.</li>
-    {% endfor %}
-</ul>
-    
-    
-    
+    .review-list ul li:hover {
+        background-color: #f1f1f1;  /* 호버 효과 */
+    }
+
+    .review-list ul li strong {
+        font-size: 16px;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .review-list ul li a {
+        color: #4CAF50;
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-block;
+        margin-top: 10px;
+        transition: color 0.3s ease;
+    }
+
+    .review-list ul li a:hover {
+        color: #45a049;  /* 링크 호버 효과 */
+    }
+
+    .review-list ul li hr {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin: 10px 0;
+    }
+</style>
+
+<!-- 컨텐츠 부분에만 스타일 적용 -->
+<div class="review-list">
+    <li><a href="{% url 'reviews_nearby' %}">원하는 지역의 리뷰 보기</a></li>
+
+    <h2>내가 선택한 음식점-카페 목록</h2>
+    <ul>
+        {% for item in selections %}
+        <li>
+            <strong>음식점: {{ item.selection.restaurant.place_name }}</strong>
+            <strong>카페: {{ item.selection.cafe.place_name }}</strong>
+            선택 날짜: {{ item.selection.created_at }}
+            <br>        
+
+            <!-- 리뷰 여부 -->
+            {% if item.review_exists %}
+                <a href="{% url 'review_detail' item.selection.restaurant.id item.selection.cafe.id %}">내 리뷰 보기</a>
+            {% else %}
+                <a href="{% url 'create_all_reviews' item.selection.restaurant.id item.selection.cafe.id %}">리뷰 작성하기</a>
+            {% endif %}
+
+        </li>
+        <hr>
+        {% empty %}
+        <li>선택한 음식점과 카페가 없습니다.</li>
+        {% endfor %}
+    </ul>
+</div>
+
 {% endblock %}

@@ -19,7 +19,6 @@
                 <li><a href="/reviews/main">Reviews</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'account_logout' %}">Logout</a></li>
-                    <li>Welcome, {{ user.username }}</li>
                 {% else %}
                     <li><a href="{% url 'account_login' %}">Login</a></li>
                 {% endif %}

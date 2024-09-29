@@ -9,23 +9,51 @@
 
     <div id="map" style="width: 100%; height: 400px;"></div>
 
-    <h3>음식점 리뷰</h3>
-    <ul id="restaurant-list">
-        <!-- 음식점 리스트가 동적으로 추가됩니다 -->
-    </ul>
-
-    <h3>카페 리뷰</h3>
-    <ul id="cafe-list">
-        <!-- 카페 리스트가 동적으로 추가됩니다 -->
-    </ul>
-
+    <!-- 음식점-카페 쌍 리뷰 -->
     <h3>음식점-카페 쌍 리뷰</h3>
     <ul id="restaurant-cafe-list">
         <!-- 음식점-카페 쌍 리뷰 리스트가 동적으로 추가됩니다 -->
     </ul>
 
+    <!-- 음식점 리뷰 -->
+    <h3>음식점 리뷰</h3>
+    <ul id="restaurant-list">
+        <!-- 음식점 리스트가 동적으로 추가됩니다 -->
+    </ul>
+
+    <!-- 카페 리뷰 -->
+    <h3>카페 리뷰</h3>
+    <ul id="cafe-list">
+        <!-- 카페 리스트가 동적으로 추가됩니다 -->
+    </ul>
+
     <!-- Kakao 지도 SDK 로드 -->
     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8c428e637dc64270cd0d6023fdc9ace&libraries=services"></script>
+
+    <!-- 스타일 추가 -->
+    <style>
+        ul {
+            padding: 0;
+            list-style-type: none;
+        }
+
+
+        ul li:hover {
+            background-color: #f1f1f1;
+        }
+
+      
+
+        ul li p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .rating {
+            font-weight: bold;
+            color: #FFA500; /* 평점 색상 */
+        }
+    </style>
 
     <script>
         // 지도 설정
@@ -54,7 +82,7 @@
             .catch(error => console.error('리뷰 검색 중 에러:', error));
         });
 
-        // 음식점 리뷰 리스트 출력 함수
+        // 음식점 및 카페 리뷰 리스트 출력 함수
         function displayReviews(reviews) {
             var restaurantList = document.getElementById('restaurant-list');
             var cafeList = document.getElementById('cafe-list');
@@ -64,35 +92,38 @@
             cafeList.innerHTML = '';  // 기존 리스트 초기화
             restaurantCafeList.innerHTML = '';  // 기존 리스트 초기화
 
-            // 음식점 리뷰 출력
+            // 음식점-카페 쌍 리뷰 출력 (맨 위로)
+            reviews.restaurant_cafe_reviews.forEach(function(review) {
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    음식점: <a href="#">${review.restaurant}</a><br>
+                    카페: <a href="#">${review.cafe}</a><br>
+                    <p class="rating">평점: ${review.reviews[0].rating}</p>
+                    <p>리뷰: ${review.reviews[0].comment}</p>
+                `;
+                restaurantCafeList.appendChild(listItem);
+            });
+
+            // 음식점 리뷰 출력 (두 번째)
             reviews.restaurants_with_reviews.forEach(function(restaurant) {
                 var listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a> - 리뷰: ${restaurant.reviews[0].comment}
+                    <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a>
+                    <p class="rating">평점: ${restaurant.reviews[0].rating}</p>
+                    <p>리뷰: ${restaurant.reviews[0].comment}</p>
                 `;
                 restaurantList.appendChild(listItem);
             });
 
-            // 카페 리뷰 출력
+            // 카페 리뷰 출력 (세 번째)
             reviews.cafes_with_reviews.forEach(function(cafe) {
                 var listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a> - 리뷰: ${cafe.reviews[0].comment}
+                    <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a>
+                    <p class="rating">평점: ${cafe.reviews[0].rating}</p>
+                    <p>리뷰: ${cafe.reviews[0].comment}</p>
                 `;
                 cafeList.appendChild(listItem);
-            });
-
-            // 음식점-카페 쌍 리뷰 출력 (예시, 만약 별도의 리뷰가 있다면)
-            reviews.restaurants_with_reviews.forEach(function(restaurant) {
-                reviews.cafes_with_reviews.forEach(function(cafe) {
-                    var listItem = document.createElement('li');
-                    listItem.innerHTML = `
-                        음식점: <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a><br>
-                        카페: <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a><br>
-                        음식점 + 카페 리뷰: ${restaurant.reviews[0].comment}, ${cafe.reviews[0].comment}
-                    `;
-                    restaurantCafeList.appendChild(listItem);
-                });
             });
         }
     </script>

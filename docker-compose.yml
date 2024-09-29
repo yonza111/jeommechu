@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ./jeommechu  
+    command: gunicorn jeommechu.wsgi:application --bind 0.0.0.0:8000 
+    volumes:
+      - ./jeommechu:/app 
+      - ./jeommechu/db.sqlite3:/app/db.sqlite3  
+      - ./jeommechu/staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
