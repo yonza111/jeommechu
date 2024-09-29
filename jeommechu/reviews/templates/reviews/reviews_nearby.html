@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    리뷰 보기
+{% endblock %}
+
+{% block content %}
+    <h2>리뷰 보기</h2>
+
+    <div id="map" style="width: 100%; height: 400px;"></div>
+
+    <h3>음식점 리뷰</h3>
+    <ul id="restaurant-list">
+        <!-- 음식점 리스트가 동적으로 추가됩니다 -->
+    </ul>
+
+    <h3>카페 리뷰</h3>
+    <ul id="cafe-list">
+        <!-- 카페 리스트가 동적으로 추가됩니다 -->
+    </ul>
+
+    <h3>음식점-카페 쌍 리뷰</h3>
+    <ul id="restaurant-cafe-list">
+        <!-- 음식점-카페 쌍 리뷰 리스트가 동적으로 추가됩니다 -->
+    </ul>
+
+    <!-- Kakao 지도 SDK 로드 -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8c428e637dc64270cd0d6023fdc9ace&libraries=services"></script>
+
+    <script>
+        // 지도 설정
+        var mapContainer = document.getElementById('map'); 
+        var mapOption = { 
+            center: new kakao.maps.LatLng(37.5665, 126.9780), // 기본 서울 좌표
+            level: 3
+        }; 
+
+        var map = new kakao.maps.Map(mapContainer, mapOption); 
+
+        // 지도 클릭 이벤트 리스너
+        kakao.maps.event.addListener(map, 'click', function(mouseEvent) {        
+            var latlng = mouseEvent.latLng;
+            var latitude = latlng.getLat();
+            var longitude = latlng.getLng();
+
+            console.log('클릭한 좌표:', latitude, longitude);
+
+            // 클릭한 좌표를 서버로 GET 요청
+            fetch(`/reviews/api/reviews_nearby/?latitude=${latitude}&longitude=${longitude}`)
+            .then(response => response.json())
+            .then(data => {
+                displayReviews(data);  // 받은 리뷰 데이터를 화면에 출력
+            })
+            .catch(error => console.error('리뷰 검색 중 에러:', error));
+        });
+
+        // 음식점 리뷰 리스트 출력 함수
+        function displayReviews(reviews) {
+            var restaurantList = document.getElementById('restaurant-list');
+            var cafeList = document.getElementById('cafe-list');
+            var restaurantCafeList = document.getElementById('restaurant-cafe-list');
+
+            restaurantList.innerHTML = '';  // 기존 리스트 초기화
+            cafeList.innerHTML = '';  // 기존 리스트 초기화
+            restaurantCafeList.innerHTML = '';  // 기존 리스트 초기화
+
+            // 음식점 리뷰 출력
+            reviews.restaurants_with_reviews.forEach(function(restaurant) {
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a> - 리뷰: ${restaurant.reviews[0].comment}
+                `;
+                restaurantList.appendChild(listItem);
+            });
+
+            // 카페 리뷰 출력
+            reviews.cafes_with_reviews.forEach(function(cafe) {
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a> - 리뷰: ${cafe.reviews[0].comment}
+                `;
+                cafeList.appendChild(listItem);
+            });
+
+            // 음식점-카페 쌍 리뷰 출력 (예시, 만약 별도의 리뷰가 있다면)
+            reviews.restaurants_with_reviews.forEach(function(restaurant) {
+                reviews.cafes_with_reviews.forEach(function(cafe) {
+                    var listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        음식점: <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a><br>
+                        카페: <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a><br>
+                        음식점 + 카페 리뷰: ${restaurant.reviews[0].comment}, ${cafe.reviews[0].comment}
+                    `;
+                    restaurantCafeList.appendChild(listItem);
+                });
+            });
+        }
+    </script>
+{% endblock %}

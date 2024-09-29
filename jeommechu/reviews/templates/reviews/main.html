@@ -7,6 +7,9 @@
 {% block content %}
     
 <!-- reviews/main.html -->
+
+<li><a href="{% url 'reviews_nearby' %}">남들 리뷰 보기</a></li>
+
 <h2>내가 선택한 음식점-카페 목록</h2>
 <ul>
     {% for item in selections %}

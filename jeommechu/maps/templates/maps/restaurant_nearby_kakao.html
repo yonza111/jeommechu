@@ -8,58 +8,87 @@
     <h2>Restaurants Near You</h2>
 
     <!-- 사용자에게 위치 설정 옵션 제공 -->
-    <p>
-        사용자 위치를 설정해주세요
-    </p>
+    <p>사용자 위치를 설정해주세요</p>
 
+    <!-- 음식점 리스트 -->
     <ul id="restaurant-list">
-        <!-- 레스토랑 리스트가 여기에 동적으로 추가됩니다 -->
+        <!-- 동적으로 음식점 리스트가 여기에 추가됩니다 -->
     </ul>
-    
+
+    <!-- Kakao Map SDK 로드 -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8c428e637dc64270cd0d6023fdc9ace&libraries=services"></script>
+
     <script>
-        function fetchRestaurants() {
-            console.log('Fetching restaurants...');  // 디버깅
-            fetch('/maps/api/restaurants_nearby/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}',  // CSRF 토큰 추가
-                },
-                body: JSON.stringify({
-                    latitude: 37.5665,  // 예시 좌표 (서울)
-                    longitude: 126.9780  // 예시 좌표 (서울)
+        document.addEventListener("DOMContentLoaded", function() {
+            // 지도 설정 및 클릭 이벤트 추가
+            var mapContainer = document.createElement('div'); // 지도 컨테이너 동적 생성
+            mapContainer.style.width = '100%';  // 크기 설정
+            mapContainer.style.height = '400px'; // 높이 설정
+            document.body.appendChild(mapContainer);  // body에 지도 컨테이너 추가
+
+            var mapOption = { 
+                center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심 좌표
+                level: 3 
+            }; 
+
+            var map = new kakao.maps.Map(mapContainer, mapOption); 
+            var marker = new kakao.maps.Marker(); 
+
+            // 지도 클릭 이벤트
+            kakao.maps.event.addListener(map, 'click', function(mouseEvent) {        
+                var latlng = mouseEvent.latLng; 
+                marker.setPosition(latlng);
+                marker.setMap(map);
+
+                var latitude = latlng.getLat();
+                var longitude = latlng.getLng();
+
+                console.log('클릭한 좌표:', latitude, longitude);
+
+                // 좌표를 서버로 전송하여 음식점 검색
+                fetch('/maps/api/restaurants_nearby/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({
+                        latitude: latitude,
+                        longitude: longitude
+                    })
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const restaurantList = document.getElementById('restaurant-list');
-                restaurantList.innerHTML = '';  // 리스트 초기화
-    
-                // 받은 데이터를 리스트로 출력
-                data.forEach(restaurant => {
-                    const kakaoMapLink = restaurant.place_url;  // 카카오 장소 URL
-    
-                    const listItem = document.createElement('li');
-    
-                    // 음식점 정보 출력 및 카카오 지도 링크 추가
-                    listItem.innerHTML = `
-                        <a href="${kakaoMapLink}" target="_blank">${restaurant.place_name}</a> 
-                        <br>
-                        <a href="javascript:void(0)" onclick="findNearbyCafes(
-                            '${restaurant.road_address_name}', 
-                            '${restaurant.place_name}', 
-                            '${restaurant.place_url}', 
-                            '${restaurant.road_address_name}'
-                        )">근처 카페 찾기</a>
-                    `;
-                    restaurantList.appendChild(listItem);
-                });
-            })
-            .catch(error => console.error('Error fetching restaurants:', error));
+                .then(response => response.json())
+                .then(data => {
+                    console.log('검색된 음식점:', data);
+                    displayRestaurants(data);
+                })
+                .catch(error => console.error('음식점 검색 중 에러:', error));
+            });
+        });
+
+        // 음식점 리스트 출력 함수
+        function displayRestaurants(data) {
+            var restaurantList = document.getElementById('restaurant-list');
+            restaurantList.innerHTML = '';  // 기존 리스트 초기화
+
+            data.forEach(function(restaurant) {
+                var listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <a href="${restaurant.place_url}" target="_blank">${restaurant.place_name}</a>
+                    <p>주소: ${restaurant.road_address_name}</p>
+                    <button onclick="findNearbyCafes(
+                        '${restaurant.road_address_name}', 
+                        '${restaurant.place_name}', 
+                        '${restaurant.place_url}', 
+                        '${restaurant.road_address_name}'
+                    )">근처 카페 찾기</button>
+                `;
+                restaurantList.appendChild(listItem);
+            });
         }
-    
+
+        // 근처 카페 찾기
         function findNearbyCafes(roadAddress, restaurantName, restaurantUrl, restaurantAddress) {
-            // 페이지를 새로고침하며 레스토랑 정보를 쿼리 파라미터로 전달
             const queryParams = new URLSearchParams({
                 road_address: roadAddress,
                 restaurant_name: restaurantName,
@@ -69,8 +98,5 @@
             
             window.location.href = `/maps/cafes_nearby/?${queryParams.toString()}`;
         }
-    
-        // 페이지 로드 시 음식점 데이터 가져오기
-        document.addEventListener('DOMContentLoaded', fetchRestaurants);
     </script>
 {% endblock %}
