@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 import urllib.parse
 import urllib.request
 from django.shortcuts import render
 from .serializers import RestaurantSerializer, CafeSerializer
+from .models import Restaurant, Cafe, UserSelection
+from django.contrib.auth.models import User
 import json
 import os
 from dotenv import load_dotenv
@@ -59,7 +61,7 @@ class RestaurantListView(APIView):
         return Response(serializer.data)
 
 def restaurant_nearby_view(request):
-    return render(request, 'restaurant_nearby_kakao.html')   # test template 넣어뒀음(임시)
+    return render(request, 'maps/restaurant_nearby_kakao.html')   # test template 넣어뒀음(임시)
 
 
 def get_coordinates_from_address(road_address):
@@ -126,4 +128,44 @@ class CafeListView(APIView):
 
 
 def cafe_nearby_view(request):
-    return render(request, 'cafes_nearby_kakao.html') # test template 넣어뒀음(임시)
+    return render(request, 'maps/cafes_nearby_kakao.html') # test template 넣어뒀음(임시)
+
+
+class SaveSelectionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        restaurant_data = {
+            'place_name': request.data.get('restaurant_place_name'),
+            'place_url': request.data.get('restaurant_place_url'),
+            'road_address_name': request.data.get('restaurant_address')
+        }
+        cafe_data = {
+            'place_name': request.data.get('cafe_place_name'),
+            'place_url': request.data.get('cafe_place_url'),
+            'road_address_name': request.data.get('cafe_address')
+        }
+
+        # 음식점 저장 또는 기존 레코드 가져오기
+        restaurant, created = Restaurant.objects.get_or_create(
+            place_name=restaurant_data['place_name'],
+            place_url=restaurant_data['place_url'],
+            road_address_name=restaurant_data['road_address_name']
+        )
+
+        # 카페 저장 또는 기존 레코드 가져오기
+        cafe, created = Cafe.objects.get_or_create(
+            place_name=cafe_data['place_name'],
+            place_url=cafe_data['place_url'],
+            road_address_name=cafe_data['road_address_name']
+        )
+
+        # UserSelection 저장
+        user_selection = UserSelection.objects.create(
+            user=user,
+            restaurant=restaurant,
+            cafe=cafe
+        )
+
+        return Response({"message": "Selection saved successfully"}, status=201)

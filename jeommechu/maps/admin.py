@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import Restaurant, Cafe, UserSelection
 
-# Register your models here.
+admin.site.register(Restaurant)
+admin.site.register(Cafe)
+admin.site.register(UserSelection)
