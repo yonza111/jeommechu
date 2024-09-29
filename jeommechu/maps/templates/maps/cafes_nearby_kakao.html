@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    근처 카페
+{% endblock %}
+
+{% block content %}
+    <script>
+        console.log('JavaScript is loaded');
+    </script>
+    <h2>Cafes Near the Selected Restaurant</h2>
+    <p id="selected-restaurant">이 텍스트가 보이나요?</p>
+    <!-- 사용자에게 선택된 레스토랑 정보 제공 -->
+    <p id="selected-restaurant">
+        선택한 레스토랑의 근처 카페를 확인해보세요.
+    </p>
+
+    <ul id="cafe-list">
+        <!-- 카페 리스트가 여기에 동적으로 추가됩니다 -->
+    </ul>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const restaurant = getRestaurantInfoFromQueryParams();
+            console.log('Restaurant Info:', restaurant);  // 디버깅용 로그
+        
+            if (restaurant.roadAddress) {
+                console.log('Fetching cafes for road address:', restaurant.roadAddress);
+                fetchCafes(restaurant);
+            } else {
+                console.error('No road_address provided');
+            }
+        });
+        
+    
+        function fetchCafes(restaurant) {
+            console.log('Attempting to fetch cafes for:', restaurant.roadAddress);  // 디버깅용 로그
+        
+            fetch(`/maps/api/cafes_nearby/?road_address=${encodeURIComponent(restaurant.roadAddress)}`, {
+                method: 'GET',
+            })
+            .then(response => {
+                console.log('Response received, status:', response.status);  // 응답 상태 확인
+        
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Cafes Data:', data);  // 응답 데이터를 콘솔에 출력
+        
+                const cafeList = document.getElementById('cafe-list');
+                cafeList.innerHTML = '';  // 리스트 초기화
+        
+                if (data.length === 0) {
+                    console.log('No cafes found');
+                    cafeList.innerHTML = '<li>No cafes found</li>';
+                }
+        
+                // 받은 데이터를 리스트로 출력
+                data.forEach(cafe => {
+                    const listItem = document.createElement('li');
+        
+                    // 카페 정보 출력 및 선택하기 버튼 추가
+                    listItem.innerHTML = `
+                        <a href="${cafe.place_url}" target="_blank">${cafe.place_name}</a>
+                        <button onclick="saveSelection(
+                            '${restaurant.restaurantName}',  // 레스토랑의 이름
+                            '${restaurant.restaurantUrl}',   // 레스토랑의 URL
+                            '${restaurant.restaurantAddress}', // 레스토랑의 도로명 주소
+                            '${cafe.place_name}', 
+                            '${cafe.place_url}', 
+                            '${cafe.road_address_name}'
+                        )">선택하기</button>
+                    `;
+                    cafeList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching cafes:', error));
+        }
+
+       // 음식점과 카페의 정보(이름, 주소, URL)를 저장하는 함수
+        function saveSelection(restaurantPlaceName, restaurantPlaceUrl, restaurantAddress, cafePlaceName, cafePlaceUrl, cafeAddress) {
+            console.log('Saving selection for restaurant and cafe:', restaurantPlaceName, cafePlaceName);
+            
+            fetch('/maps/api/save_selection/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',  // CSRF token 추가
+                },
+                body: JSON.stringify({
+                    restaurant_place_name: restaurantPlaceName,
+                    restaurant_place_url: restaurantPlaceUrl,
+                    restaurant_address: restaurantAddress,
+                    cafe_place_name: cafePlaceName,
+                    cafe_place_url: cafePlaceUrl,
+                    cafe_address: cafeAddress
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('선택이 저장되었습니다!');
+                } else if (data.error) {
+                    alert(data.error);
+                }
+            })
+            .catch(error => console.error('Error saving selection:', error));
+        }
+        function getRestaurantInfoFromQueryParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return {
+                roadAddress: urlParams.get('road_address'),
+                restaurantName: urlParams.get('restaurant_name'),
+                restaurantUrl: urlParams.get('restaurant_url'),
+                restaurantAddress: urlParams.get('restaurant_address')
+            };
+        }
+    </script>
+{% endblock %}

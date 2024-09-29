@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ restaurant.place_name }} + {{ cafe.place_name }}
+{% endblock %}
+
+{% block content %}
+    
+<h2>{{ restaurant.place_name }} + {{ cafe.place_name }}</h2>
+
+<h3>평가</h3>
+<p>별점: {{ rating.rating }}</p>
+<p>코멘트: {{ rating.comment }}</p>
+
+<a href="{% url 'create_restaurant_cafe_rating' restaurant.id cafe.id %}">평가 작성하기</a>
+    
+    
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Reviews
+{% endblock %}
+
+{% block content %}
+    
+<!-- reviews/main.html -->
+<h2>내가 선택한 음식점-카페 목록</h2>
+<ul>
+    {% for item in selections %}
+    <li>
+        <strong>음식점: {{ item.selection.restaurant.place_name }}</strong><br>
+        <strong>카페: {{ item.selection.cafe.place_name }}</strong><br>
+        선택 날짜: {{ item.selection.created_at }}
+        <br>        
+
+        <!-- 리뷰 여부 -->
+        {% if item.review_exists %}
+            <a href="{% url 'review_detail' item.selection.restaurant.id item.selection.cafe.id %}">내 리뷰 보기</a>
+        {% else %}
+            <a href="{% url 'create_all_reviews' item.selection.restaurant.id item.selection.cafe.id %}">리뷰 작성하기</a>
+        {% endif %}
+        
+
+        {% comment %} <a href="{% url 'create_all_reviews' item.selection.restaurant.id item.selection.cafe.id %}">리뷰 작성하기</a> {% endcomment %}
+
+    </li>
+    <hr>
+    {% empty %}
+    <li>선택한 음식점과 카페가 없습니다.</li>
+    {% endfor %}
+</ul>
+    
+    
+    
+{% endblock %}

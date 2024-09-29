@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ restaurant.place_name }}와 {{ cafe.place_name }} 리뷰 작성
+{% endblock %}
+
+{% block content %}
+    <h2>{{ restaurant.place_name }}와 {{ cafe.place_name }} 리뷰 작성</h2>
+
+    <form method="POST" onsubmit="return validateForms()">
+        {% csrf_token %}
+        
+        <!-- 음식점 리뷰 폼 -->
+        <h3>{{ restaurant.place_name }}에 대한 리뷰</h3>
+        <h4>음식점 리뷰</h4>
+        {{ restaurant_form.as_p }}
+
+        <!-- 카페 리뷰 폼 -->
+        <h4>카페 리뷰</h4>
+        {{ cafe_form.as_p }}
+
+        <!-- 음식점+카페 리뷰 폼 -->
+        <h4>음식점 + 카페 리뷰</h4>
+        {{ restaurant_cafe_form.as_p }}
+
+        <button type="submit">리뷰 수정</button>
+    </form>
+
+    <script>
+        function validateForms() {
+            // 각각의 리뷰 폼을 명확히 구분하여 선택
+            const restaurantRating = document.querySelector('input[name="restaurant-rating"]:checked');
+            const restaurantComment = document.querySelector('textarea[name="restaurant-comment"]');
+            const cafeRating = document.querySelector('input[name="cafe-rating"]:checked');
+            const cafeComment = document.querySelector('textarea[name="cafe-comment"]');
+            const restaurantCafeRating = document.querySelector('input[name="restaurant_cafe-rating"]:checked');
+            const restaurantCafeComment = document.querySelector('textarea[name="restaurant_cafe-comment"]');
+
+            // 각 필드가 채워졌는지 확인
+            if (!restaurantRating || !restaurantComment.value || !cafeRating || !cafeComment.value || !restaurantCafeRating || !restaurantCafeComment.value) {
+                alert('모든 리뷰 항목을 작성해야 제출할 수 있습니다.');
+                return false; // 폼 제출 방지
+            }
+            return true; // 모든 필드가 채워졌다면 폼 제출 허용
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,38 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+{{ restaurant.place_name }} 상세 정보
+{% endblock %}
+
+{% block content %}
+    
+<h2>{{ restaurant.place_name }}</h2>   
+<p>주소: {{ restaurant.road_address_name }}</p>
+<a href="{{ restaurant.place_url }}" target="_blank">지도에서 보기</a>
+
+<h3>리뷰</h3>
+<ul>
+    {% for review in reviews %}
+    <li>
+        <!-- 별점 시각적으로 표시 -->
+        <span>
+            {% for i in "12345" %}
+                {% if review.rating >= i|add:"0" %}
+                    ★
+                {% else %}
+                    ☆
+                {% endif %}
+            {% endfor %}
+        </span>
+        - {{ review.comment }}
+    </li>
+    {% empty %}
+    <li>리뷰가 없습니다.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'create_restaurant_review' restaurant.id %}">리뷰 작성하기</a>
+    
+    
+{% endblock %}

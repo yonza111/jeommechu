@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ restaurant.place_name }}와 {{ cafe.place_name }}에 대한 리뷰
+{% endblock %}
+
+{% block content %}
+    <h2>{{ restaurant.place_name }}와 {{ cafe.place_name }}에 대한 리뷰</h2>
+
+    <!-- 음식점 리뷰 -->
+    <h3>음식점 리뷰</h3>
+    {% if restaurant_review %}
+        <p>별점: {{ restaurant_review.rating }}</p>
+        <p>코멘트: {{ restaurant_review.comment }}</p>
+    {% else %}
+        <p>작성된 음식점 리뷰가 없습니다.</p>
+    {% endif %}
+
+    <!-- 카페 리뷰 -->
+    <h3>카페 리뷰</h3>
+    {% if cafe_review %}
+        <p>별점: {{ cafe_review.rating }}</p>
+        <p>코멘트: {{ cafe_review.comment }}</p>
+    {% else %}
+        <p>작성된 카페 리뷰가 없습니다.</p>
+    {% endif %}
+
+    <!-- 음식점-카페 리뷰 -->
+    <h3>음식점 + 카페 리뷰</h3>
+    {% if restaurant_cafe_rating %}
+        <p>별점: {{ restaurant_cafe_rating.rating }}</p>
+        <p>코멘트: {{ restaurant_cafe_rating.comment }}</p>
+    {% else %}
+        <p>작성된 음식점 + 카페 리뷰가 없습니다.</p>
+    {% endif %}
+
+    <!-- 리뷰 수정 버튼 -->
+    <a href="{% url 'update_all_reviews' restaurant.id cafe.id %}">리뷰 수정하기</a>
+{% endblock %}

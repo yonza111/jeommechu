@@ -8,4 +8,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('maps/', include('maps.urls')),
     path('accounts/', include('allauth.urls')),  # django-allauth
+    path('reviews/', include('reviews.urls')),
 ]

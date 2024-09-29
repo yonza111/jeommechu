@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ cafe.place_name }}에 대한 리뷰 작성
+{% endblock %}
+
+{% block content %}
+<h2>{{ cafe.place_name }}에 대한 리뷰 작성</h2>
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">리뷰 작성</button>
+</form>
+{% endblock %}
