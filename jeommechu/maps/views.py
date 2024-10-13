@@ -1,16 +1,17 @@
+# maps/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.views.generic import TemplateView
 import urllib.parse
 import urllib.request
 from django.shortcuts import render
 from .serializers import RestaurantSerializer, CafeSerializer
 from .models import Restaurant, Cafe, UserSelection
-from django.contrib.auth.models import User
 import json
 import os
 from dotenv import load_dotenv
-import re
+from django.conf import settings
 
 load_dotenv()
 
@@ -59,9 +60,6 @@ class RestaurantListView(APIView):
 
         serializer = RestaurantSerializer(categorized_restaurants, many=True)
         return Response(serializer.data)
-
-def restaurant_nearby_view(request):
-    return render(request, 'maps/restaurant_nearby_kakao.html')   # test template 넣어뒀음(임시)
 
 
 def get_coordinates_from_address(road_address):
@@ -126,11 +124,6 @@ class CafeListView(APIView):
             return Response({"error": str(e)}, status=500)
 
 
-
-def cafe_nearby_view(request):
-    return render(request, 'maps/cafes_nearby_kakao.html') # test template 넣어뒀음(임시)
-
-
 class SaveSelectionView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -169,3 +162,25 @@ class SaveSelectionView(APIView):
         )
 
         return Response({"message": "Selection saved successfully"}, status=201)
+    
+
+
+# def cafe_nearby_view(request):
+#     return render(request, 'maps/cafes_nearby_kakao.html') 
+
+
+class cafe_nearby_view(TemplateView):
+    template_name = 'maps/cafes_nearby_kakao.html'
+
+
+# def restaurant_nearby_view(request):
+#     return render(request, 'maps/restaurant_nearby_kakao.html')   
+
+
+class restaurant_nearby_view(TemplateView):
+    template_name = 'maps/restaurant_nearby_kakao.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['kakao_javascript_key'] = os.environ.get('KAKAO_JAVASCRIPT_KEY')
+        return context
