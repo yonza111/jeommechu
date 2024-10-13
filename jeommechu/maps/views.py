@@ -164,17 +164,8 @@ class SaveSelectionView(APIView):
         return Response({"message": "Selection saved successfully"}, status=201)
     
 
-
-# def cafe_nearby_view(request):
-#     return render(request, 'maps/cafes_nearby_kakao.html') 
-
-
 class cafe_nearby_view(TemplateView):
     template_name = 'maps/cafes_nearby_kakao.html'
-
-
-# def restaurant_nearby_view(request):
-#     return render(request, 'maps/restaurant_nearby_kakao.html')   
 
 
 class restaurant_nearby_view(TemplateView):
