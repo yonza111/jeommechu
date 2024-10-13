@@ -1,3 +1,4 @@
+<!-- maps/ restaurant_nearby_kakao.html-->
 {% extends 'base.html' %}
 
 {% block title %}
@@ -19,7 +20,7 @@
     </ul>
 
     <!-- Kakao Map SDK 로드 -->
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f8c428e637dc64270cd0d6023fdc9ace&libraries=services"></script>
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_javascript_key }}&libraries=services"></script>
 
     <!-- 스타일 추가 -->
     <style>
